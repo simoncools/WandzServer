@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="WandsServer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/WandsServer_jar</output-path>
+    <root id="archive" name="WandsServer.jar">
+      <element id="module-output" name="WandsServer" />
+    </root>
+  </artifact>
+</component>
