@@ -82,6 +82,10 @@ public class Main {
                         game.setStarted(false);
                         conMan.sendDataToAllButSelf("STOP", allData.get(i).getClient());
                     }
+                    else if (nextLine.startsWith("KEEPALIVE")){
+                        Client client = allData.get(i).getClient();
+                        client.setLastUpdated(System.currentTimeMillis());
+                    }
                 }
 
             }

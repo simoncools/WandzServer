@@ -15,6 +15,7 @@ public class ConnectionManager {
     private int port;
     private ArrayList<Client> connections = new ArrayList<>();
     private Thread listenerThread;
+    private Thread timeoutThread;
     private int idCounter = 0;
     private boolean listening = false;
 
@@ -61,6 +62,40 @@ public class ConnectionManager {
                 }
             });
             listenerThread.start();
+
+            timeoutThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (true) {
+                        for (int i = 0; i < connections.size(); i++) {
+                            Client nextClient = connections.get(i);
+                            if (System.currentTimeMillis() - nextClient.getLastUpdated() > 60000) {
+                                System.out.println("Client " + nextClient.getId() + " timed out.");
+                                try {
+                                    nextClient.getSocket().close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                Player player = Main.game.getPlayer(nextClient);
+                                if(player!=null) {
+                                    Main.game.removePlayer(nextClient.getId());
+                                    sendDataToAllButSelf("PLAYERLEAVE "+player.getUsername()+" "+player.getId()+"\n",nextClient);
+                                }
+                                connections.remove(nextClient);
+                            }
+                        }
+                       // System.out.println("Checked for timeouts");
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                        }
+                    }
+                }
+            });
+            timeoutThread.start();
+
+
+
     }
 
     /*
@@ -71,16 +106,17 @@ public class ConnectionManager {
         for(int i=0;i<connections.size();i++){
             try {
                 Client nextClient = connections.get(i);
-                BufferedReader inFromClient = new BufferedReader(new InputStreamReader(nextClient.getSocket().getInputStream()));
-                ClientData clientData = new ClientData(nextClient);
-                while(inFromClient.ready()){
-                    String nextLine = inFromClient.readLine();
-                    clientData.addLine(nextLine);
+                if(!nextClient.getSocket().isClosed()) {
+                    BufferedReader inFromClient = new BufferedReader(new InputStreamReader(nextClient.getSocket().getInputStream()));
+                    ClientData clientData = new ClientData(nextClient);
+                    while (inFromClient.ready()) {
+                        String nextLine = inFromClient.readLine();
+                        clientData.addLine(nextLine);
+                    }
+                    if (clientData.getData().size() > 0) {
+                        dataList.add(clientData);
+                    }
                 }
-                if(clientData.getData().size()>0){
-                    dataList.add(clientData);
-                }
-
             }catch(IOException e){
                 e.printStackTrace();
                 System.out.println("Error reading data from client.");
