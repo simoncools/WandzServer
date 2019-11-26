@@ -127,6 +127,7 @@ public class ConnectionManager {
 
     public void sendDataToAllButSelf(String data,Client exception){
         Client currentClient = null;
+
         try {
             for(int i=0;i<connections.size();i++){
                 currentClient = connections.get(i);
@@ -135,6 +136,23 @@ public class ConnectionManager {
                     outToClient.writeBytes(data + "\n");
                 }
             }
+        }catch(IOException e){
+            // e.printStackTrace();
+            if(currentClient!=null) {
+                System.out.println("Client " + currentClient.getId() + " is disconnected.");
+            }
+        }
+    }
+
+    public void sendDataToAll(String data){
+        Client currentClient = null;
+
+        try {
+            for(int i=0;i<connections.size();i++){
+                    currentClient = connections.get(i);
+                    DataOutputStream outToClient = new DataOutputStream(currentClient.getSocket().getOutputStream());
+                    outToClient.writeBytes(data + "\n");
+                }
         }catch(IOException e){
             // e.printStackTrace();
             if(currentClient!=null) {

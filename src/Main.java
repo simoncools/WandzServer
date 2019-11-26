@@ -50,7 +50,7 @@ public class Main {
                                 if (mode.equals("SPIRALDEFENSE")) {
                                     game.setGamemode(new SpiralDefense());
                                 }
-                                conMan.sendDataToAllButSelf(fullCommand, allData.get(i).getClient());
+                                conMan.sendDataToAll(fullCommand);
                             }
                         }
                     }
@@ -63,7 +63,7 @@ public class Main {
                             int id = client.getId();
                             Player player = new Player(username, id, client);
                             game.addPlayer(player);
-                            conMan.sendDataToAllButSelf("PLAYERJOINED "+player.getUsername()+" "+player.getId()+"\n",client);
+                            conMan.sendDataToAll("PLAYERJOINED "+player.getUsername()+" "+player.getId()+"\n");
                         }
                     }
                     else if (nextLine.startsWith("LEAVE")) {
@@ -71,16 +71,16 @@ public class Main {
                         game.removePlayer(client.getId());
                         Player player = game.getPlayer(client);
                         if(player!=null){
-                        conMan.sendDataToAllButSelf("PLAYERLEAVE "+player.getUsername()+" "+player.getId()+"\n",client);
+                        conMan.sendDataToAll("PLAYERLEAVE "+player.getUsername()+" "+player.getId()+"\n");
                         }
                     }
                     else if (nextLine.startsWith("START")) {
                         game.setStarted(true);
-                        conMan.sendDataToAllButSelf("START", allData.get(i).getClient());
+                        conMan.sendDataToAll("START");
                     }
                     else if (nextLine.startsWith("STOP")) {
                         game.setStarted(false);
-                        conMan.sendDataToAllButSelf("STOP", allData.get(i).getClient());
+                        conMan.sendDataToAll("STOP");
                     }
                     else if (nextLine.startsWith("KEEPALIVE")){
                         Client client = allData.get(i).getClient();
