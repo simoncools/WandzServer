@@ -52,7 +52,7 @@ public class ConnectionManager {
                             ArrayList<Player> playerList = Main.game.getPlayers();
                             for(int i=0;i<playerList.size();i++){
                                 Player nextPlayer = playerList.get(i);
-                                sendDataToClient(newClient,"PLAYERJOINED "+nextPlayer.getUsername()+" "+nextPlayer.getId()+"\n");
+                                sendDataToClient(newClient,"PLAYERJOINED "+nextPlayer.getUsername()+" "+nextPlayer.getId()+" "+nextPlayer.getLooks()+"\n");
                             }
                         }
                     } catch (IOException e) {
@@ -78,7 +78,7 @@ public class ConnectionManager {
                                 }
                                 Player player = Main.game.getPlayer(nextClient);
                                 if(player!=null) {
-                                    Main.game.removePlayer(nextClient.getId());
+                                    Main.game.removePlayer(player);
                                     sendDataToAllButSelf("PLAYERLEAVE "+player.getUsername()+" "+player.getId()+"\n",nextClient);
                                 }
                                 connections.remove(nextClient);

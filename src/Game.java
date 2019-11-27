@@ -27,13 +27,8 @@ public class Game {
         return null;
     }
 
-    public void removePlayer(int id){
-        for(int i=0;i<playerList.size();i++){
-            if(playerList.get(i).getId() == id){
-                playerList.remove(i);
-                return;
-            }
-        }
+    public void removePlayer(Player player){
+        playerList.remove(player);
     }
 
     public void setGamemode(Gamemode newMode){

@@ -3,6 +3,7 @@ import Gamemodes.Elimination;
 import Gamemodes.SpiralDefense;
 import Gamemodes.TeamElimination;
 
+import java.awt.image.AreaAveragingScaleFilter;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class Main {
                 for (int k = 0; k < nextList.size(); k++) {
                     String nextLine = nextList.get(k);
                     String fullCommand = nextLine;
+                    System.out.println("Command from client "+allData.get(i).getClient().getId()+": "+fullCommand);
                     if (nextLine.startsWith("HIT")) {
                         //command structure : HIT [casterID] [victimID] [spellID]
                         nextLine = nextLine.replace("HIT ", "");
@@ -63,14 +65,26 @@ public class Main {
                             Client client = allData.get(i).getClient();
                             int id = client.getId();
                             Player player = new Player(username, id, client,looks);
-                            game.addPlayer(player);
-                            conMan.sendDataToAll("PLAYERJOINED "+player.getUsername()+" "+player.getId()+" "+player.getLooks()+"\n");
+                            ArrayList<Player> playerList = game.getPlayers();
+                            boolean notAdded = true;
+                            for(int q=0;q<playerList.size();q++){
+                                Player nextPlayer = playerList.get(q);
+                                if(nextPlayer.getId()==player.getId()){
+                                    notAdded = false;
+                                    System.out.println("Player already in list");
+                                }
+
+                            }
+                            if(notAdded){
+                                game.addPlayer(player);
+                                conMan.sendDataToAll("PLAYERJOINED "+player.getUsername()+" "+player.getId()+" "+player.getLooks()+"\n");
+                            }
                         }
                     }
                     else if (nextLine.startsWith("LEAVE")) {
                         Client client = allData.get(i).getClient();
-                        game.removePlayer(client.getId());
                         Player player = game.getPlayer(client);
+                        game.removePlayer(player);
                         if(player!=null){
                         conMan.sendDataToAll("PLAYERLEAVE "+player.getUsername()+" "+player.getId()+"\n");
                         }
