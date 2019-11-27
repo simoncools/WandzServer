@@ -57,13 +57,14 @@ public class Main {
                     else if (nextLine.startsWith("JOIN")) {
                         nextLine = nextLine.replace("JOIN ", "");
                         String arguments[] = nextLine.split(" ");
-                        if (arguments.length == 1) {
+                        if (arguments.length == 2) {
                             String username = arguments[0];
+                            String looks = arguments[1];
                             Client client = allData.get(i).getClient();
                             int id = client.getId();
-                            Player player = new Player(username, id, client);
+                            Player player = new Player(username, id, client,looks);
                             game.addPlayer(player);
-                            conMan.sendDataToAll("PLAYERJOINED "+player.getUsername()+" "+player.getId()+"\n");
+                            conMan.sendDataToAll("PLAYERJOINED "+player.getUsername()+" "+player.getId()+" "+player.getLooks()+"\n");
                         }
                     }
                     else if (nextLine.startsWith("LEAVE")) {

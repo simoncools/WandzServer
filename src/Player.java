@@ -4,11 +4,13 @@ public class Player {
     private String username;
     private int id;
     private Client client;
+    private String looks;
 
-    public Player(String username, int id, Client client){
+    public Player(String username, int id, Client client,String looks){
         this.username = username;
         this.id = id;
         this.client = client;
+        this.looks = looks;
     }
 
     public String getUsername() {
@@ -23,4 +25,7 @@ public class Player {
         return client;
     }
 
+    public String getLooks() {
+        return looks;
+    }
 }
