@@ -22,7 +22,9 @@ public class Main {
                 for (int k = 0; k < nextList.size(); k++) {
                     String nextLine = nextList.get(k);
                     String fullCommand = nextLine;
-                    System.out.println("Command from client "+allData.get(i).getClient().getId()+": "+fullCommand);
+                    if(!fullCommand.startsWith("KEEPALIVE")) {
+                        System.out.println("Command from client " + allData.get(i).getClient().getId() + ": " + fullCommand);
+                    }
                     if (nextLine.startsWith("HIT")) {
                         //command structure : HIT [casterID] [victimID] [spellID]
                         nextLine = nextLine.replace("HIT ", "");
@@ -82,11 +84,13 @@ public class Main {
                         }
                     }
                     else if (nextLine.startsWith("LEAVE")) {
+                        System.out.println("LEAVE COMMAND RECEIVED");
                         Client client = allData.get(i).getClient();
                         Player player = game.getPlayer(client);
-                        game.removePlayer(player);
                         if(player!=null){
-                        conMan.sendDataToAll("PLAYERLEAVE "+player.getUsername()+" "+player.getId()+"\n");
+                            conMan.sendDataToAll("PLAYERLEAVE "+player.getUsername()+" "+player.getId()+"\n");
+                            System.out.println("PLAYERLEAVE SENT");
+                            game.removePlayer(player);
                         }
                     }
                     else if (nextLine.startsWith("START")) {

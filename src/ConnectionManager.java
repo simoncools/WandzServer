@@ -36,63 +36,63 @@ public class ConnectionManager {
     New connections are added to the "connections" ArrayList
      */
     private void listen(){
-            listenerThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (true) {
-                            Socket connectionSocket = serverSocket.accept();
-                            System.out.println("New connection");
-                            Client newClient = new Client(idCounter, connectionSocket);
-                            connections.add(newClient);
-                            idCounter++;
-                            sendDataToClient(newClient, "ID "+newClient.getId()+"\n"
-                                    +"SETGAMEMODE "+ Game.gamemode.getMode()+"\n"
-                                    +"STATUS "+Game.getStatus()+"\n");
-                            ArrayList<Player> playerList = Main.game.getPlayers();
-                            for(int i=0;i<playerList.size();i++){
-                                Player nextPlayer = playerList.get(i);
-                                sendDataToClient(newClient,"PLAYERJOINED "+nextPlayer.getUsername()+" "+nextPlayer.getId()+" "+nextPlayer.getLooks()+"\n");
-                            }
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        System.out.println("Listener stopped due to IOException");
-                    }
-                }
-            });
-            listenerThread.start();
-
-            timeoutThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
+        listenerThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
                     while (true) {
-                        for (int i = 0; i < connections.size(); i++) {
-                            Client nextClient = connections.get(i);
-                            if (System.currentTimeMillis() - nextClient.getLastUpdated() > 60000) {
-                                System.out.println("Client " + nextClient.getId() + " timed out.");
-                                try {
-                                    nextClient.getSocket().close();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                Player player = Main.game.getPlayer(nextClient);
-                                if(player!=null) {
-                                    Main.game.removePlayer(player);
-                                    sendDataToAllButSelf("PLAYERLEAVE "+player.getUsername()+" "+player.getId()+"\n",nextClient);
-                                }
-                                connections.remove(nextClient);
-                            }
-                        }
-                       // System.out.println("Checked for timeouts");
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
+                        Socket connectionSocket = serverSocket.accept();
+                        System.out.println("New connection");
+                        Client newClient = new Client(idCounter, connectionSocket);
+                        connections.add(newClient);
+                        idCounter++;
+                        sendDataToClient(newClient, "ID "+newClient.getId()+"\n"
+                                +"SETGAMEMODE "+ Game.gamemode.getMode()+"\n"
+                                +"STATUS "+Game.getStatus()+"\n");
+                        ArrayList<Player> playerList = Main.game.getPlayers();
+                        for(int i=0;i<playerList.size();i++){
+                            Player nextPlayer = playerList.get(i);
+                            sendDataToClient(newClient,"PLAYERJOINED "+nextPlayer.getUsername()+" "+nextPlayer.getId()+" "+nextPlayer.getLooks()+"\n");
                         }
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.out.println("Listener stopped due to IOException");
                 }
-            });
-            timeoutThread.start();
+            }
+        });
+        listenerThread.start();
+
+        timeoutThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    for (int i = 0; i < connections.size(); i++) {
+                        Client nextClient = connections.get(i);
+                        if (System.currentTimeMillis() - nextClient.getLastUpdated() > 60000) {
+                            System.out.println("Client " + nextClient.getId() + " timed out.");
+                            try {
+                                nextClient.getSocket().close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            Player player = Main.game.getPlayer(nextClient);
+                            if(player!=null) {
+                                Main.game.removePlayer(player);
+                                sendDataToAll("PLAYERLEAVE "+player.getUsername()+" "+player.getId()+"\n");
+                            }
+                            connections.remove(nextClient);
+                        }
+                    }
+                    // System.out.println("Checked for timeouts");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
+        });
+        timeoutThread.start();
 
 
 
@@ -147,16 +147,16 @@ public class ConnectionManager {
     public void sendDataToAll(String data){
         Client currentClient = null;
 
-        try {
-            for(int i=0;i<connections.size();i++){
-                    currentClient = connections.get(i);
-                    DataOutputStream outToClient = new DataOutputStream(currentClient.getSocket().getOutputStream());
-                    outToClient.writeBytes(data + "\n");
+        for(int i=0;i<connections.size();i++){
+            try {
+                currentClient = connections.get(i);
+                DataOutputStream outToClient = new DataOutputStream(currentClient.getSocket().getOutputStream());
+                outToClient.writeBytes(data + "\n");
+            }catch(IOException e){
+               // e.printStackTrace();
+                if(currentClient!=null) {
+                    System.out.println("Client " + currentClient.getId() + " is disconnected.");
                 }
-        }catch(IOException e){
-            // e.printStackTrace();
-            if(currentClient!=null) {
-                System.out.println("Client " + currentClient.getId() + " is disconnected.");
             }
         }
     }
@@ -166,7 +166,7 @@ public class ConnectionManager {
             DataOutputStream outToClient = new DataOutputStream(client.getSocket().getOutputStream());
             outToClient.writeBytes(data+"\n");
         }catch(IOException e){
-           // e.printStackTrace();
+            // e.printStackTrace();
             System.out.println("Client "+client.getId()+" is disconnected.");
         }
     }
