@@ -16,7 +16,7 @@ public class ConnectionManager {
     private ArrayList<Client> connections = new ArrayList<>();
     private Thread listenerThread;
     private Thread timeoutThread;
-    public ArrayList<Integer> idList = new ArrayList<>();
+    public int idCounter = 0;
     private boolean listening = false;
 
     public ConnectionManager(int port){
@@ -28,10 +28,6 @@ public class ConnectionManager {
         }catch(IOException e){
             e.printStackTrace();
             System.out.println("ERROR STARTING SERVER");
-        }
-
-        for(int i=0;i<30;i++){
-            idList.add(i);
         }
     }
 
@@ -47,10 +43,12 @@ public class ConnectionManager {
                     while (true) {
                         Socket connectionSocket = serverSocket.accept();
                         System.out.println("New connection");
-                        Integer myId = idList.get(0);
-                        Client newClient = new Client(myId, connectionSocket);
+                        Client newClient = new Client(idCounter, connectionSocket);
                         connections.add(newClient);
-                        idList.remove(myId);
+                        idCounter++;
+                        if(idCounter>200){
+                            idCounter = 0;
+                        }
                         sendDataToClient(newClient, "ID "+newClient.getId()+"\n"
                                 +"SETGAMEMODE "+ Game.gamemode.getMode()+"\n"
                                 +"STATUS "+Game.getStatus()+"\n");
@@ -86,7 +84,6 @@ public class ConnectionManager {
                                 Main.game.removePlayer(player);
                                 sendDataToAll("PLAYERLEAVE "+player.getUsername()+" "+player.getId()+"\n");
                             }
-                            idList.add(nextClient.getId());
                             connections.remove(nextClient);
                         }
                     }
