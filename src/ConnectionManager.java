@@ -72,7 +72,7 @@ public class ConnectionManager {
                 while (true) {
                     for (int i = 0; i < connections.size(); i++) {
                         Client nextClient = connections.get(i);
-                        if (System.currentTimeMillis() - nextClient.getLastUpdated() > 60000) {
+                        if (System.currentTimeMillis() - nextClient.getLastUpdated() > 5000) {
                             System.out.println("Client " + nextClient.getId() + " timed out.");
                             try {
                                 nextClient.getSocket().close();

@@ -100,6 +100,11 @@ public class Main {
                     else if (nextLine.startsWith("STOP")) {
                         game.setStarted(false);
                         conMan.sendDataToAll("STOP");
+                    }else if(nextLine.startsWith("DEAD")){
+                        String[] arguments = nextLine.split(" ");
+                        if(arguments.length == 3){
+                            conMan.sendDataToAll(nextLine);
+                        }
                     }
                     else if (nextLine.startsWith("KEEPALIVE")){
                         Client client = allData.get(i).getClient();
