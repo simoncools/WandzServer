@@ -102,13 +102,20 @@ public class Main {
                         conMan.sendDataToAll("STOP");
                     }else if(nextLine.startsWith("DEAD")){
                         String[] arguments = nextLine.split(" ");
-                        if(arguments.length == 3){
+                        if(arguments.length == 4){
                             conMan.sendDataToAll(nextLine);
                         }
                     }
                     else if (nextLine.startsWith("KEEPALIVE")){
                         Client client = allData.get(i).getClient();
                         client.setLastUpdated(System.currentTimeMillis());
+                    }
+                    else if(nextLine.startsWith("SCORE")){
+                        String[] arguments = nextLine.split(" ");
+                        if(arguments.length == 3){
+                            conMan.sendDataToAll(nextLine);
+                        }
+
                     }
                 }
 
